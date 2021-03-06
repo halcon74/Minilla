@@ -4,7 +4,7 @@ use warnings;
 use utf8;
 use ExtUtils::MakeMaker qw(prompt);
 
-use Minilla::Util qw(edit_file require_optional parse_options);
+use Minilla::Util qw(edit_file require_optional parse_options run_steps);
 use Minilla::WorkDir;
 use Minilla::Logger;
 use Minilla::Project;
@@ -30,7 +30,7 @@ sub run {
         return;
     }
 
-    my @steps = qw(
+    my $steps = [ qw(
         CheckUntrackedFiles
         CheckOrigin
         BumpVersion
@@ -45,22 +45,8 @@ sub run {
         RewriteChanges
         Commit
         Tag
-    );
-    my @klasses;
-    # Load all step classes.
-    for (@steps) {
-        my $klass = "Minilla::Release::$_";
-        if (eval "require ${klass}; 1") {
-            push @klasses, $klass;
-            $klass->init() if $klass->can('init');
-        } else {
-            errorf("Error while loading %s: %s\n", $_, $@);
-        }
-    }
-    # And run all steps.
-    for my $klass (@klasses) {
-        $klass->run($project, $opts);
-    }
+    ) ];
+    run_steps ($steps, $project, $opts);
 }
 
 1;

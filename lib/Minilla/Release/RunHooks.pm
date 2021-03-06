@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use utf8;
 
+use Minilla::Logger ();
+
 sub run {
     my ($self, $project, $opts) = @_;
 
@@ -14,7 +16,13 @@ sub run {
             warn "Release hooks must be array";
             exit 1;
         }
-        $return_value = system(join ' && ', @$commands);
+	my $join = "";
+	for my $command (@{$commands}) {
+		$join and $join .= " && ";
+		$join .= "$command"
+	}
+	Minilla::Logger::infof("Running hook: %s\n", $join);
+        $return_value = system ("$join");
     }
 
     if ($return_value != 0) {

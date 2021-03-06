@@ -14,7 +14,7 @@ use File::Copy qw(copy);
 use Config;
 
 use Minilla::Logger;
-use Minilla::Util qw(randstr cmd cmd_perl slurp slurp_raw spew spew_raw pod_escape);
+use Minilla::Util qw(randstr cmd cmd_perl slurp slurp_raw spew spew_raw pod_escape run_steps);
 use Minilla::FileGatherer;
 use Minilla::ReleaseTest;
 
@@ -213,6 +213,11 @@ sub dist {
     my ($self) = @_;
 
     $self->{tarball} ||= do {
+        my $steps = [ qw(
+            RunHooks
+        ) ];
+        run_steps ($steps, $self->project);
+
         $self->build();
 
         my $guard = pushd($self->dir);

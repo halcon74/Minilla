@@ -22,6 +22,7 @@ our @EXPORT_OK = qw(
     pod_escape
     parse_options
     check_git
+    run_steps
 );
 
 our %EXPORT_TAGS = (
@@ -166,6 +167,25 @@ sub pod_escape {
 sub check_git {
     unless (which 'git') {
         Minilla::Logger::errorf("The \"git\" executable has not been found.\n");
+    }
+}
+
+sub run_steps {
+    my ($steps, $project, $opts) = @_;
+    my @klasses;
+    # Load all step classes.
+    for (@{$steps}) {
+        my $klass = "Minilla::Release::$_";
+        if (eval "require ${klass}; 1") {
+            push @klasses, $klass;
+            $klass->init() if $klass->can('init');
+        } else {
+            Minilla::Logger::errorf("Error while loading %s: %s\n", $_, $@);
+        }
+    }
+    # And run all steps.
+    for my $klass (@klasses) {
+        $klass->run($project, $opts);
     }
 }
 
