@@ -18,8 +18,8 @@ sub run {
         }
         my $join = "";
         for my $command (@{$commands}) {
-                $join and $join .= " && ";
-                $join .= "$command"
+                $join eq "" or $join .= " && ";
+                $join .= "$command";
         }
         Minilla::Logger::infof("Running hook: %s\n", $join);
         $return_value = system ("$join");
