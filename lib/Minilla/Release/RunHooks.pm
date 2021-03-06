@@ -16,12 +16,12 @@ sub run {
             warn "Release hooks must be array";
             exit 1;
         }
-	my $join = "";
-	for my $command (@{$commands}) {
-		$join and $join .= " && ";
-		$join .= "$command"
-	}
-	Minilla::Logger::infof("Running hook: %s\n", $join);
+        my $join = "";
+        for my $command (@{$commands}) {
+                $join and $join .= " && ";
+                $join .= "$command"
+        }
+        Minilla::Logger::infof("Running hook: %s\n", $join);
         $return_value = system ("$join");
     }
 
